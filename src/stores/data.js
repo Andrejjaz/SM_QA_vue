@@ -15,20 +15,27 @@ export const useDataStore = defineStore('data', () => {
     reader.readAsArrayBuffer(file)
 
     reader.onload = (e) => {
-      let workbook = read(e.target.result);
+      let workbook = read(e.target.result, {
+        type: 'binary',
+        cellDates: true,
+        cellNF: false,
+        cellText: false
+      });
+
+      const options = {
+        raw: false,
+        dateNF:"yyyy-mm-dd hh:mm:ss"
+      };
 
       workbook.SheetNames.forEach(function (sheetName) {
-        // Here is your object
-        let XL_row_object = utils.sheet_to_json(workbook.Sheets[sheetName])
-
-        let json_object = JSON.stringify(XL_row_object)
+        let XL_row_object = utils.sheet_to_json(workbook.Sheets[sheetName], options);
 
         if (variant === 'schedule') {
-          data.scheduleObj = JSON.parse(json_object).filter((obj) => {
+          data.scheduleObj = XL_row_object.filter((obj) => {
             return obj.Position === 'Social Media Support Expert (secondary)'
           })
         } else if (variant === 'answers') {
-          const repliedOnly = JSON.parse(json_object).filter((obj) => {
+          const repliedOnly = XL_row_object.filter((obj) => {
             return (
               obj['Reply Status'] === 'Yes'
             )
@@ -103,8 +110,16 @@ export const useDataStore = defineStore('data', () => {
 
       const scheduleDate = new Date(item.shiftDate).toLocaleDateString();
 
+      console.log(data.answersObj);
+
       let oneShiftAnswers = data.answersObj.filter((elem) => {
         let completed;
+
+        // console.log(elem);
+
+        // console.log(elem['Task Status'] === 'Tasked');
+        // console.log(elem['First Reply Timestamp']);
+        // console.log(elem['Completed Timestamp']);
 
         if (elem['Task Status'] === 'Tasked') {
             completed = elem['First Reply Timestamp'];
@@ -115,6 +130,8 @@ export const useDataStore = defineStore('data', () => {
         if (!completed || regExp.test(completed)) {
             return false;
         }
+
+        // console.log(completed);
 
         const completedArray = completed?.split(' ');
 
