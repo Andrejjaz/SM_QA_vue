@@ -38,7 +38,7 @@ const onSubmit = () => {
         <div class="main-inner">
           <article>
             <div class="form-wrapper">
-              <h1>Please be sure that both files are uploaded to have proper results</h1>
+              <h1>Please make sure that both files are uploaded to have proper results</h1>
 
               <form enctype="multipart/form-data" @submit.prevent="onSubmit">
                 <FieldsetComponent>

@@ -110,16 +110,8 @@ export const useDataStore = defineStore('data', () => {
 
       const scheduleDate = new Date(item.shiftDate).toLocaleDateString();
 
-      console.log(data.answersObj);
-
       let oneShiftAnswers = data.answersObj.filter((elem) => {
         let completed;
-
-        // console.log(elem);
-
-        // console.log(elem['Task Status'] === 'Tasked');
-        // console.log(elem['First Reply Timestamp']);
-        // console.log(elem['Completed Timestamp']);
 
         if (elem['Task Status'] === 'Tasked') {
             completed = elem['First Reply Timestamp'];
@@ -130,8 +122,6 @@ export const useDataStore = defineStore('data', () => {
         if (!completed || regExp.test(completed)) {
             return false;
         }
-
-        // console.log(completed);
 
         const completedArray = completed?.split(' ');
 
