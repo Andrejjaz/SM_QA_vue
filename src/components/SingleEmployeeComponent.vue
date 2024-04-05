@@ -9,6 +9,8 @@ const props = defineProps({
     }
 });
 
+console.log(props.employee);
+
 const name = computed(() => {
     return props.employee.Name.split(' ')[0]
 });

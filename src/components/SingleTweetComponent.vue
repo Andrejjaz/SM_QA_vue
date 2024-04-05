@@ -1,9 +1,29 @@
 <script setup>
-import { computed } from 'vue';
+import { useDataStore } from '@/stores/data'
+import { storeToRefs } from 'pinia';
+const store = useDataStore();
+
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
     tweet: {
         type: Object
+    },
+    shiftNumber: {
+        type: Number
+    },
+    tweetNumber: {
+        type: Number
+    }
+})
+
+const adminComment = ref('');
+const adminMistake = ref('Checked');
+const adminFormat = ref('0');
+
+watch(adminComment, () => {
+    if (adminComment.value.length > 0) {
+        store.addAdminComment(props.shiftNumber, props.tweetNumber, {adminComment, adminMistake, adminFormat});
     }
 })
 
@@ -77,23 +97,23 @@ const fixHeight = (e) => {
             </p>
         </div>
         <div class="tweet-selects-block">
-            <select>
-                <option selected>Checked</option>
-                <option>Recommendation</option>
-                <option>Mistake</option>
-                <option>Critical mistake</option>
+            <select v-model="adminMistake">
+                <option selected value="Checked">Checked</option>
+                <option value="Recommendation">Recommendation</option>
+                <option value="Mistake">Mistake</option>
+                <option value="Critical mistake">Critical mistake</option>
             </select>
 
-            <select>
-                <option selected>Communication standart format</option>
-                <option>checked</option>
-                <option>recommendation</option>
-                <option>mistake</option>
-                <option>critical mistake</option>
+            <select v-model="adminFormat">
+                <option selected value="0">Communication standart format</option>
+                <option value="format 1">format 1</option>
+                <option value="format 2">format 2</option>
+                <option value="format 3">format 3</option>
+                <option value="format 4">format 4</option>
             </select>
         </div>
         <div class="tweet-textarea-block">
-            <textarea @blur="fixHeight"></textarea>
+            <textarea @blur="fixHeight" v-model="adminComment"></textarea>
         </div>
     </div>
 </template>

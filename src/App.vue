@@ -6,6 +6,12 @@ import { RouterView } from 'vue-router'
 
 <template>
   <SvgComponent />
+
+  <div class="navigation">
+    <RouterLink to="/" class="link">Home</RouterLink>
+    <RouterLink to="admin" class="link">Admin</RouterLink>
+  </div>
+
   <RouterView />
 </template>
 
@@ -44,6 +50,27 @@ body {
       padding: 0 20px;
       left: 0;
       top: 0;
+  }
+}
+
+
+.navigation {
+  display: flex;
+  justify-content: left;
+  padding: 20px;
+
+  .link {
+    color: #334140;
+    margin-right: 10px;
+    padding: 5px;
+    background-color: #4d5d5d;
+    text-decoration: none;
+    font-weight: 600;
+
+    &.router-link-active {
+      color: white;
+      text-decoration: underline;
+    }
   }
 }
 </style>

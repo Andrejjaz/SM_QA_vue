@@ -5,6 +5,7 @@ import { read, utils } from 'xlsx'
 
 export const useDataStore = defineStore('data', () => {
   const data = reactive({});
+  const employees = reactive([]);
   const currentEmployee = reactive({});
   const currentAnswers = reactive([]);
 
@@ -32,7 +33,12 @@ export const useDataStore = defineStore('data', () => {
 
         if (variant === 'schedule') {
           data.scheduleObj = XL_row_object.filter((obj) => {
-            return obj.Position === 'Social Media Support Expert (secondary)'
+            if (obj.Position === 'Social Media Support Expert (secondary)') {
+              employees.push({
+                name: obj.Name
+              });
+              return true;
+            }
           })
         } else if (variant === 'answers') {
           const repliedOnly = XL_row_object.filter((obj) => {
@@ -61,8 +67,6 @@ export const useDataStore = defineStore('data', () => {
     reader.onerror = function (ex) {
       console.log(ex)
     }
-
-    // reader.readAsBinaryString(file)
   };
 
   const setCurrentEmployee = (employee) => {
@@ -81,14 +85,17 @@ export const useDataStore = defineStore('data', () => {
         }
     });
 
+    currentEmployee.name = employee.Name;
+
     const employeeSchedule = employeeWorkingDates.map((item) => {
       return {
-          shiftDate: item,
+          employeeName: currentEmployee.name,
+          shiftDate: item.split(' ')[0],
           shiftTime: employee[item]
       }
     });
 
-    currentEmployee.value = employeeSchedule
+    currentEmployee.value = employeeSchedule;
 
     setCurrentEmployeeAnswers(employeeSchedule);
   }
@@ -110,16 +117,8 @@ export const useDataStore = defineStore('data', () => {
 
       const scheduleDate = new Date(item.shiftDate).toLocaleDateString();
 
-      console.log(data.answersObj);
-
       let oneShiftAnswers = data.answersObj.filter((elem) => {
         let completed;
-
-        // console.log(elem);
-
-        // console.log(elem['Task Status'] === 'Tasked');
-        // console.log(elem['First Reply Timestamp']);
-        // console.log(elem['Completed Timestamp']);
 
         if (elem['Task Status'] === 'Tasked') {
             completed = elem['First Reply Timestamp'];
@@ -130,8 +129,6 @@ export const useDataStore = defineStore('data', () => {
         if (!completed || regExp.test(completed)) {
             return false;
         }
-
-        // console.log(completed);
 
         const completedArray = completed?.split(' ');
 
@@ -160,14 +157,25 @@ export const useDataStore = defineStore('data', () => {
     return currentAnswers
   })
 
+  const addAdminComment = (shiftNumber, tweetNumber, payload) => {
+    const { adminComment, adminMistake, adminFormat } = payload;
+    currentAnswers[shiftNumber].answers[tweetNumber].adminComment = {
+      adminComment,
+      adminMistake,
+      adminFormat
+    };
+  }
+
   return {
     data,
+    employees,
     ExcelToJSON,
     currentEmployee,
     setCurrentEmployee,
     getCurrentEmployee,
     currentAnswers,
     setCurrentEmployeeAnswers,
-    getCurrentAnswers
+    getCurrentAnswers,
+    addAdminComment
   }
 })

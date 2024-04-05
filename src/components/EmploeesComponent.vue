@@ -11,7 +11,7 @@ const props = defineProps({
 <template>
     <div class="employees">
         <ul>
-            <SingleEmployeeComponent v-for="(employee, index) in employees" :key="index" :employee="employee" />
+            <SingleEmployeeComponent v-for="(employee, index) in props.employees" :key="index" :employee="employee" />
         </ul>
     </div>
 </template>

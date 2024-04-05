@@ -1,34 +1,65 @@
 <script setup>
-import SharedVButton from '@/components/shared/ButtonComponent.vue';
-import FieldsetComponent from '@/components/shared/FieldsetComponent.vue';
-import LabelComponent from '@/components/shared/LabelComponent.vue';
-import EmployeesComponent from '@/components/EmploeesComponent.vue';
-import ScheduleComponent from '@/components/ScheduleComponent.vue';
-
 import { useDataStore } from '@/stores/data'
-import { ref } from 'vue';
+import { useDataBaseStore } from '@/stores/db'
+import { storeToRefs } from 'pinia';
+
 const store = useDataStore();
+const storeDB = useDataBaseStore();
 
-const submitted = ref(false);
+import { ref, onMounted, reactive, computed } from 'vue'
 
-const setFileUploaded = (e) => {
-  store.ExcelToJSON(e, e.target.dataset.name);
-  e.target.classList.add('uploaded');
-}
+const { data, employeesDB } = storeToRefs(storeDB);
 
-const onSubmit = () => {
-  if (!store.data?.scheduleObj?.length) {
-      alert('Please put file with schedule');
-      return;
-  };
+const users = reactive([]);
+const shifts = reactive([]);
+const activeUser = ref('');
+const activeShift = ref('');
 
-  if (!store.data?.answersObj?.length) {
-      alert('Please put file with twitter answers');
-      return;
-  }
+const usersShifts = computed(() => {
+  return shifts.filter((shift) => {
+    console.log(shift.name, activeUser.value);
+    return shift.name === activeUser.value
+  })
+})
 
-  submitted.value = true;
-}
+const shiftsAnswers = computed(() => {
+  return usersShifts.value.filter((shift) => {
+    return shift.date === activeShift.value
+  })
+})
+
+const name = (name) => {
+    return name.split(' ')[0]
+};
+
+const surname = (name) => {
+    return name.split(' ')[1]
+};
+
+const switchUser = (user) => {
+  activeShift.value = '';
+  activeUser.value = user.name
+};
+
+onMounted(() => {
+  storeDB.fetchEmployees().then(() => {
+    employeesDB.value.forEach(element => {
+      users.push(element);
+    });
+  });
+
+  storeDB.fetchDB().then(() => {
+    data.value.forEach((element) => {
+      shifts.push({
+        id: element.id,
+        date: element.date,
+        name: element.name,
+        answers: element.answers
+      });
+    });
+  });
+});
+
 </script>
 
 <template>
@@ -37,7 +68,41 @@ const onSubmit = () => {
       <div class="container">
         <div class="main-inner">
           <article>
-            admin panel
+            <div class="admin-panel">
+              <ul class="employees">
+                <li v-for="(user, index) in users" :key="index">
+                  <button class="employees-button" @click="switchUser(user)">
+                    <span>{{ name(user.name) }}</span>
+                    <span>{{ surname(user.name) }}</span>
+                  </button>
+                </li>
+              </ul>
+
+              <ul class="shifts">
+                <li v-for="(shift, index) in usersShifts" :key="index">
+                  <button class="shifts-button" @click="activeShift = shift.date">
+                    <span>{{ shift.date }}</span>
+                  </button>
+
+                  <ul v-if="activeShift === shift.date">
+                    <li v-for="(oneTweet, index) in shiftsAnswers[0].answers" :key="index">
+                      <div>
+                        <p>Message: {{ oneTweet["Message"] }}</p>
+                        <p><a :href='oneTweet["Permalink"]'>Reply</a></p>
+                        <p v-if="oneTweet?.adminComment" class="admin-comment">
+                          <span v-if="oneTweet.adminComment.adminMistake">Admin mistake: {{ oneTweet.adminComment.adminMistake }}</span>
+                          <span v-if="oneTweet.adminComment.adminFormat">Admin format: {{ oneTweet.adminComment.adminFormat }}</span>
+                          <p v-if="oneTweet.adminComment.adminComment">
+                            <span>Admin comment: </span>
+                            <pre>{{ oneTweet.adminComment.adminComment }}</pre>
+                          </p>
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
           </article>
         </div>
       </div>
@@ -55,79 +120,89 @@ const onSubmit = () => {
   margin: 0 auto;
 }
 
-.form-wrapper {
-  background-color: #334140;
-  padding: 15px;
-}
-
-.content-wrapper {
+.admin-panel {
   display: flex;
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    list-style: none;
+  }
 }
 
-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr auto;
-  grid-column-gap: 10px;
-}
-
-.uploaded + .icon {
-  color: #334140;
-}
-
-.btn-block {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  grid-column: 1/3;
-}
-
-
-
-h1 {
-  margin: 0 0 15px;
-  font-weight: 400;
-  text-align: center;
-}
-
-
-fieldset {
-  border: none;
-  margin: 0 auto 15px;
-  width: 100%;
+.employees {
+  flex-basis: 15%;
+  margin-right: 15px;
+  flex-shrink: 0;
   padding: 0;
+
+  &-button {
+    width: 100%;
+    padding: 10px 0;
+    margin-bottom: 5px;
+    color: white;
+    background: #4d5d5d;
+    border: none;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
 }
 
-fieldset label {
-  cursor: pointer;
-  border: 1px solid #4d5d5d;
-  background-color: #4d5d5d;
-  padding: 5px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-column-gap: 10px;
-  font-size: 16px;
+.shifts {
+  flex-basis: 85%;
+  flex-shrink: 0;
+  padding: 0;
+
+  &-button {
+    width: 15%;
+    padding: 10px 0;
+    margin-bottom: 5px;
+    color: white;
+    background: #4d5d5d;
+    border: none;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  li {
+    display: flex;
+    flex-direction: column;
+  }
+
+  ul {
+    margin: 10px;
+
+    li {
+      margin-bottom: 10px;
+      padding: 20px;
+      background-color: #fff;
+      color: #000;
+    }
+  }
 }
 
-fieldset span {
+.admin-comment {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #ccc;
+  border-radius: 3px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-fieldset input[type='file'] {
-  display: none;
-}
-
-fieldset .icon {
-  height: 60px;
-  width: 60px;
-  fill: none;
-}
-
-textarea {
-  width: 100%;
 }
 
 </style>

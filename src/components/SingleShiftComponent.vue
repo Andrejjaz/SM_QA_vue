@@ -8,6 +8,9 @@ const props = defineProps({
     },
     shiftAnswers: {
         type: Object
+    },
+    shiftNumber: {
+        type: Number
     }
 })
 
@@ -27,7 +30,7 @@ const toggle = ref(true);
 
       <div class="answers-wrapper" :class="{ active: toggle }">
         <div class="tweet-wrapper">
-          <SingleTweetComponent v-for="(tweet, index) in props.shiftAnswers" :key="index" :tweet="tweet" />
+          <SingleTweetComponent v-for="(tweet, index) in props.shiftAnswers" :shiftNumber="shiftNumber" :tweetNumber="index" :key="index" :tweet="tweet" />
         </div>
       </div>
     </div>
