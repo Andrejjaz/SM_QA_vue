@@ -25,7 +25,10 @@ if (props.tweet['Task Status'] === 'Tasked') {
 }
 
 const submittedTimestampName = computed(() => {
-    return props.tweet['Timestamp (EET)'] || props.tweet['Timestamp (CAT)'] || props.tweet['Timestamp (PT)']
+    return props.tweet['Timestamp (EET)'] ||
+            props.tweet['Timestamp (CAT)'] ||
+            props.tweet['Timestamp (EAT)'] ||
+            props.tweet['Timestamp (PT)'];
 })
 
 const submittedTime = new Date(submittedTimestampName.value);
