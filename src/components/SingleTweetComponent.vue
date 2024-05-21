@@ -7,8 +7,12 @@ const props = defineProps({
     }
 })
 
-const family = computed(() => {
+const familyNamecheap = computed(() => {
     return props.tweet['Connected Profile']?.toLowerCase() === 'namecheap'
+})
+
+const familySpaceship = computed(() => {
+    return props.tweet['Connected Profile']?.toLowerCase() === 'spaceship'
 })
 
 const link = computed(() => {
@@ -65,8 +69,8 @@ const fixHeight = (e) => {
 <template>
     <div class="single-tweet">
         <div class="tweet-upper-block">
-            <span v-if="family" class="family" title="Namecheap">N</span>
-            <span v-if="!family" class="family" title="Spaceship">S</span>
+            <span v-if="familyNamecheap" class="family" title="Namecheap">N</span>
+            <span v-if="familySpaceship" class="family" title="Spaceship">S</span>
             <p>
                 <a :href="link" target="_blank">Link to communication</a>
                 |
