@@ -1,28 +1,10 @@
 <script setup>
 import EmployeesComponent from '@/components/EmploeesComponent.vue';
-import AdminScheduleComponent from '@/components/AdminScheduleComponent.vue';
-import { onMounted } from 'vue';
+import ScheduleComponent from '@/components/ScheduleComponent.vue';
 
 import { useDataStore } from '@/stores/data'
 
 const store = useDataStore();
-
-const objectToRender = () => {
-  if (store.data.scheduleObj && store.data.answersObj) {
-    return store.data.scheduleObj;
-  }
-  if (store.dataBase?.length) {
-    return store.dataBase[0].scheduleObj;
-  }
-}
-
-onMounted(() => {
-  if (!store.dataBase?.length) {
-    store.fetchDB().then(() => {
-      store.setData(store.dataBase[0]);
-    });
-  }
-});
 </script>
 
 <template>
@@ -31,10 +13,14 @@ onMounted(() => {
       <div class="container">
         <div class="main-inner">
           <article>
-            <div class="content-wrapper">
-              <EmployeesComponent :employees="objectToRender()" />
+            <div class="content-wrapper" v-if="store.data.scheduleObj?.length">
+              <EmployeesComponent :employees="store.data.scheduleObj" />
 
-              <AdminScheduleComponent />
+              <ScheduleComponent />
+            </div>
+            <div v-else>
+              <p>Please go and upload required files</p>
+              <RouterLink to="/" class="link">Home</RouterLink>
             </div>
           </article>
         </div>
@@ -60,6 +46,11 @@ onMounted(() => {
 
 .content-wrapper {
   display: flex;
+}
+
+.link {
+  font-size: 24px;
+  color: #fff;
 }
 
 form {

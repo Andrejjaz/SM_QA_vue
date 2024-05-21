@@ -1,80 +1,61 @@
 <template>
-    <button class="save-btn">
-        <span :disabled="loading ? true : false" @click="saveToDatabase">Save</span>
-    </button>
+  <button class="save-btn">
+    <span :disabled="loading ? true : false" @click="saveToDatabase">Save</span>
+  </button>
 </template>
 
 <script setup>
 import { useDataStore } from '@/stores/data'
-import { useDataBaseStore } from '@/stores/db'
-import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue'
+// import { storeToRefs } from 'pinia';
+import { ref } from 'vue'
 
-import { db } from '@/firebase'
-import { doc, setDoc } from "firebase/firestore";
+const store = useDataStore()
 
-const store = useDataStore();
-const storeDB = useDataBaseStore();
-
-const { currentAnswers } = storeToRefs(store);
-const loading = ref(false);
+// const { currentAnswers } = storeToRefs(store);
+const loading = ref(false)
 
 const saveToDatabase = async () => {
-    loading.value = true;
+  loading.value = true
 
-    const DBusers = storeDB.data.filter((user) => user.name === store.currentEmployee.name);
+  const dataToUpload = {
+    date: store.currentDate,
+    scheduleObj: store.data.scheduleObj,
+    answersObj: store.data.answersObj
+  }
 
-    if (DBusers.length) {
-        currentAnswers.value.forEach(async (oneAnswer) => {
-            let date = oneAnswer.date.shiftDate.split(' ')[0];
+  let docId = ''
 
-            const userDateFiltered = DBusers.filter((user) => user.date === date);
+  if (store.dataBase.length) {
+    const filteredFromDB = store.dataBase.filter((item) => {
+      return item.date == dataToUpload.date
+    })
 
-            if (oneAnswer.answers.length) {
-                storeDB.updateUser(userDateFiltered[0], {
-                    name: store.currentEmployee.name,
-                    date,
-                    answers: oneAnswer.answers
-                });
-            }
-        })
-    } else {
-        currentAnswers.value.forEach(async (oneAnswer) => {
-            let date = oneAnswer.date.shiftDate.split(' ')[0];
-
-            if (oneAnswer.answers.length) {
-                storeDB.addUser({
-                    name: store.currentEmployee.name,
-                    date,
-                    answers: oneAnswer.answers
-                });
-            }
-        })
+    if (filteredFromDB.length) {
+      docId = filteredFromDB[0].id
     }
+  }
 
-    loading.value = false;
+  store.updateData(docId, dataToUpload)
+
+  loading.value = false
 }
-
-onMounted(() => {
-  storeDB.fetchDB();
-});
 </script>
 
 <style lang="scss" scoped>
 button {
-    cursor: pointer;
-    background-color: #4d5d5d;
-    padding: 5px 10px;
-    font-size: 16px;
-    border: none;
-    border-radius: 3px;
-    text-transform: uppercase;
-    font-weight: 600;
-    color: white;
+  cursor: pointer;
+  background-color: #4d5d5d;
+  padding: 5px 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: white;
 
-    &:disabled {
-        background-color: #b3c0c0;
-        cursor: not-allowed;
-    }
+  &:disabled {
+    background-color: #b3c0c0;
+    cursor: not-allowed;
+  }
 }
 </style>

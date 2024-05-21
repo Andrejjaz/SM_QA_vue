@@ -2,14 +2,12 @@
 import { useDataStore } from '@/stores/data'
 const store = useDataStore();
 
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 const props = defineProps({
     employee: {
         type: Object
     }
 });
-
-console.log(props.employee);
 
 const name = computed(() => {
     return props.employee.Name.split(' ')[0]

@@ -28,27 +28,27 @@ watch(adminComment, () => {
 })
 
 const family = computed(() => {
-    return props.tweet['Connected Profile']?.toLowerCase() === 'namecheap'
+    return props.tweet.connectedProfile?.toLowerCase() === 'namecheap'
 })
 
 const link = computed(() => {
-    return props.tweet['Native Permalink']
+    return props.tweet.nativePermalink
 })
 
 
 let completedTimeStamp;
 
-if (props.tweet['Task Status'] === 'Tasked') {
-    completedTimeStamp = props.tweet['First Reply Timestamp'];
+if (props.tweet.taskStatus === 'Tasked') {
+    completedTimeStamp = props.tweet.firstReplyTimestamp;
 } else {
-    completedTimeStamp = props.tweet['Completed Timestamp'];
+    completedTimeStamp = props.tweet.completedTimestamp;
 }
 
 const submittedTimestampName = computed(() => {
-    return props.tweet['Timestamp (EET)'] ||
-            props.tweet['Timestamp (CAT)'] ||
-            props.tweet['Timestamp (EAT)'] ||
-            props.tweet['Timestamp (PT)'];
+    return props.tweet.timeEET ||
+            props.tweet.timeCAT ||
+            props.tweet.timeEAT ||
+            props.tweet.timePT;
 })
 
 const submittedTime = new Date(submittedTimestampName.value);
@@ -70,11 +70,11 @@ const timeWasted = computed(() => {
 })
 
 const clientComment = computed(() => {
-    return props.tweet['Message']
+    return props.tweet.message
 })
 
 const smrComment = computed(() => {
-    return props.tweet['Permalink']
+    return props.tweet.permalink
 })
 
 const fixHeight = (e) => {

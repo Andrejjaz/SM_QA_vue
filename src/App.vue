@@ -9,7 +9,8 @@ import { RouterView } from 'vue-router'
 
   <div class="navigation">
     <RouterLink to="/" class="link">Home</RouterLink>
-    <RouterLink to="admin" class="link">Admin</RouterLink>
+    <!-- <RouterLink to="table" class="link">Table</RouterLink> -->
+    <!-- <RouterLink to="admin" class="link">Admin</RouterLink> -->
   </div>
 
   <RouterView />

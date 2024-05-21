@@ -1,34 +1,76 @@
 <script setup>
-import SharedVButton from '@/components/shared/ButtonComponent.vue';
-import FieldsetComponent from '@/components/shared/FieldsetComponent.vue';
-import LabelComponent from '@/components/shared/LabelComponent.vue';
-import EmployeesComponent from '@/components/EmploeesComponent.vue';
-import ScheduleComponent from '@/components/ScheduleComponent.vue';
+import SharedVButton from '@/components/shared/ButtonComponent.vue'
+import FieldsetComponent from '@/components/shared/FieldsetComponent.vue'
+import LabelComponent from '@/components/shared/LabelComponent.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 import { useDataStore } from '@/stores/data'
-import { ref } from 'vue';
-const store = useDataStore();
 
-const submitted = ref(false);
+import { onMounted, ref } from 'vue'
+
+const store = useDataStore()
+
+const loading = ref(false)
+
+const currentDate = new Date()
+
+const month = ref(currentDate.getMonth() + 1)
+const year = ref(currentDate.getFullYear())
 
 const setFileUploaded = (e) => {
-  store.ExcelToJSON(e, e.target.dataset.name);
-  e.target.classList.add('uploaded');
+  store.ExcelToJSON(e, e.target.dataset.name)
+  e.target.classList.add('uploaded')
 }
 
 const onSubmit = () => {
   if (!store.data?.scheduleObj?.length) {
-      alert('Please put file with schedule');
-      return;
-  };
-
-  if (!store.data?.answersObj?.length) {
-      alert('Please put file with twitter answers');
-      return;
+    alert('Please put file with schedule')
+    return
   }
 
-  submitted.value = true;
+  if (!store.data?.answersObj?.length) {
+    alert('Please put file with twitter answers')
+    return
+  }
+
+  loading.value = true
+
+  const dataToUpload = {
+    date: `${month.value} ${year.value}`,
+    scheduleObj: store.data.scheduleObj,
+    answersObj: store.data.answersObj
+  }
+
+  let docId = ''
+
+  if (store.dataBase.length) {
+    const filteredFromDB = store.dataBase.filter((item) => {
+      return item.date === dataToUpload.date
+    })
+
+    if (filteredFromDB.length) {
+      docId = filteredFromDB[0].id
+    }
+  }
+
+  if (!docId) {
+    store.addData(dataToUpload)
+  } else {
+    store.updateData(docId, dataToUpload)
+  }
+
+  loading.value = false
+
+  store.setDate(dataToUpload.date)
+
+  router.push('table')
 }
+
+onMounted(() => {
+  store.fetchDB();
+});
 </script>
 
 <template>
@@ -41,6 +83,14 @@ const onSubmit = () => {
               <h1>Please make sure that both files are uploaded to have proper results</h1>
 
               <form enctype="multipart/form-data" @submit.prevent="onSubmit">
+                <FieldsetComponent class="date-input">
+                  <label for="month-input">Type month</label>
+                  <input id="month-input" type="number" v-model="month" min="1" max="12" />
+                </FieldsetComponent>
+                <FieldsetComponent class="date-input">
+                  <label for="year-input">Type year</label>
+                  <input id="year-input" type="number" v-model="year" />
+                </FieldsetComponent>
                 <FieldsetComponent>
                   <LabelComponent class="input-label">
                     <input
@@ -54,7 +104,7 @@ const onSubmit = () => {
                     />
 
                     <svg class="icon">
-                        <use xlink:href="#icon-upload"></use>
+                      <use xlink:href="#icon-upload"></use>
                     </svg>
 
                     <span>
@@ -77,7 +127,7 @@ const onSubmit = () => {
                     />
 
                     <svg class="icon">
-                        <use xlink:href="#icon-upload"></use>
+                      <use xlink:href="#icon-upload"></use>
                     </svg>
 
                     <span>
@@ -88,19 +138,10 @@ const onSubmit = () => {
                   </LabelComponent>
                 </FieldsetComponent>
 
-
                 <div class="btn-block">
-                  <SharedVButton btnType="submit" class="btn">
-                    Submit
-                  </SharedVButton>
+                  <SharedVButton btnType="submit" class="btn"> Submit </SharedVButton>
                 </div>
               </form>
-            </div>
-
-            <div v-if="store.data.scheduleObj && store.data.answersObj && submitted" class="content-wrapper">
-              <EmployeesComponent :employees="store.data.scheduleObj" />
-
-              <ScheduleComponent />
             </div>
           </article>
         </div>
@@ -133,6 +174,12 @@ form {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr auto;
   grid-column-gap: 10px;
+
+  @media screen and (max-width: 768px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-column-gap: 0;
+  }
 }
 
 .uploaded + .icon {
@@ -146,20 +193,21 @@ form {
   grid-column: 1/3;
 }
 
-
-
 h1 {
   margin: 0 0 15px;
   font-weight: 400;
   text-align: center;
 }
 
-
 fieldset {
   border: none;
   margin: 0 auto 15px;
   width: 100%;
   padding: 0;
+
+  @media screen and (max-width: 768px) {
+    grid-column-start: 1;
+  }
 }
 
 fieldset label {
@@ -194,4 +242,21 @@ textarea {
   width: 100%;
 }
 
+.date-input {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  label {
+    background: none;
+    border: none;
+    margin-bottom: 5px;
+  }
+
+  input {
+    width: calc(100% - 13px);
+    padding: 0 5px;
+    height: 30px;
+  }
+}
 </style>
