@@ -6,6 +6,12 @@ import { computed, defineProps } from 'vue';
 const props = defineProps({
     employee: {
         type: Object
+    },
+    index: {
+        type: Number
+    },
+    highlightedClass: {
+        type: Boolean
     }
 });
 
@@ -20,7 +26,7 @@ const surname = computed(() => {
 
 <template>
     <li>
-        <button class="employees-button" @click="store.setCurrentEmployee(props.employee)">
+        <button :class="`employees-button ${highlightedClass ? 'highlighted' : ''}`" @click="store.setCurrentEmployee(props.employee, props.index)">
             <span>{{ name }}</span>
             <span>{{ surname }}</span>
         </button>
@@ -43,5 +49,9 @@ const surname = computed(() => {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+
+  &.highlighted {
+    background: #334140;
+  }
 }
 </style>

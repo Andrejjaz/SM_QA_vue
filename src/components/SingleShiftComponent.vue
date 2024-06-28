@@ -27,7 +27,7 @@ const toggle = ref(true);
 
       <div class="answers-wrapper" :class="{ active: toggle }">
         <div class="tweet-wrapper">
-          <SingleTweetComponent v-for="(tweet, index) in props.shiftAnswers" :key="index" :tweet="tweet" />
+          <SingleTweetComponent v-for="(tweet, index) in props.shiftAnswers" :key="index" :tweet="tweet" :index="index" />
         </div>
       </div>
     </div>

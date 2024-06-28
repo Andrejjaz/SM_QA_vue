@@ -42,15 +42,7 @@ export const useDataStore = defineStore('data', () => {
           })
 
           const filtered = repliedOnly.filter((obj) => {
-            if (obj['Task Assignee'] === 'Den Kislinskiy') {
-              return false
-            }
-
-            if (obj['Replied By'] === 'Den Kislinskiy') {
-              return false
-            }
-
-            return true
+            return (obj['Task Assignee'] !== 'Den Kislinskiy' || obj['Replied By'] !== 'Den Kislinskiy')
           })
 
           data.answersObj = filtered
@@ -61,11 +53,9 @@ export const useDataStore = defineStore('data', () => {
     reader.onerror = function (ex) {
       console.log(ex)
     }
-
-    // reader.readAsBinaryString(file)
   };
 
-  const setCurrentEmployee = (employee) => {
+  const setCurrentEmployee = (employee, index) => {
     const regex = /\d/;
 
     const employeeWorkingDates = [...Object.keys(employee)].filter((item) => {
@@ -88,13 +78,14 @@ export const useDataStore = defineStore('data', () => {
       }
     });
 
-    currentEmployee.value = employeeSchedule
+    currentEmployee.value = employeeSchedule;
+    currentEmployee.index = index;
 
     setCurrentEmployeeAnswers(employeeSchedule);
   }
 
   const setCurrentEmployeeAnswers = (employeeShifts) => {
-    var regExp = /[a-zA-Z]/g;
+    const regExp = /[a-zA-Z]/g;
 
     currentAnswers.length = 0
 

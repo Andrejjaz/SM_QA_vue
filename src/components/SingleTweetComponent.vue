@@ -1,18 +1,21 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 
 const props = defineProps({
     tweet: {
         type: Object
+    },
+    index: {
+        type: Number
     }
 })
 
 const familyNamecheap = computed(() => {
-    return props.tweet['Connected Profile']?.toLowerCase() === 'namecheap'
+    return props.tweet['Connected Profile']?.toLowerCase() === 'namecheap' || props.tweet['Completed By']?.toLowerCase() === 'customer support'
 })
 
 const familySpaceship = computed(() => {
-    return props.tweet['Connected Profile']?.toLowerCase() === 'spaceship'
+    return props.tweet['Connected Profile']?.toLowerCase() === 'spaceship' || props.tweet['Completed By']?.toLowerCase() === 'spaceship sm'
 })
 
 const link = computed(() => {
@@ -64,17 +67,28 @@ const smrComment = computed(() => {
 const fixHeight = (e) => {
     e.target.style.height = e.target.scrollHeight + 'px';
 }
+
+const mistakeSelect = ref(0);
+const formatSelect = ref(0);
+const textArea = ref('');
+
+onUnmounted(() => {
+    mistakeSelect.value = 0;
+    formatSelect.value = 0;
+    textArea.value = '';
+})
 </script>
 
 <template>
     <div class="single-tweet">
         <div class="tweet-upper-block">
+            <span class="indexNumber">{{ index + 1 }}</span>
             <span v-if="familyNamecheap" class="family" title="Namecheap">N</span>
             <span v-if="familySpaceship" class="family" title="Spaceship">S</span>
             <p>
                 <a :href="link" target="_blank">Link to communication</a>
                 |
-                <span>{{ timeWasted }} minutes processing</span>
+                <span :class="timeWasted > 30 ? 'critical' : ''">{{ timeWasted }} minutes processing</span>
             </p>
             <p>
                 <b>User ({{ submittedTimeFormatted }}): </b>
@@ -88,24 +102,24 @@ const fixHeight = (e) => {
             </p>
         </div>
         <div class="tweet-selects-block">
-            <select>
-                <option selected>Checked</option>
-                <option>Recommendation</option>
-                <option>Mistake</option>
-                <option>Critical mistake</option>
-                <option>Cool post</option>
+            <select v-model="mistakeSelect">
+                <option selected value="0">Checked</option>
+                <option value="1">Recommendation</option>
+                <option value="2">Mistake</option>
+                <option value="3">Critical mistake</option>
+                <option value="4">Cool post</option>
             </select>
 
-            <select>
-                <option selected>Communication standart format</option>
-                <option>checked</option>
-                <option>recommendation</option>
-                <option>mistake</option>
-                <option>critical mistake</option>
+            <select v-model="formatSelect">
+                <option selected value="0">Communication standart format</option>
+                <option value="1">checked</option>
+                <option value="2">recommendation</option>
+                <option value="3">mistake</option>
+                <option value="4">critical mistake</option>
             </select>
         </div>
         <div class="tweet-textarea-block">
-            <textarea @blur="fixHeight"></textarea>
+            <textarea @blur="fixHeight" v-model="textArea"></textarea>
         </div>
     </div>
 </template>
@@ -117,6 +131,13 @@ const fixHeight = (e) => {
   color: black;
   margin-bottom: 15px;
   position: relative;
+    p {
+        margin-top: 0;
+    }
+
+    a {
+         color: #000 !important;
+    }
 }
 
 .tweet-upper-block {
@@ -134,6 +155,22 @@ const fixHeight = (e) => {
     }
 }
 
+.indexNumber {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: #fff;
+  font-weight: normal;
+  min-width: 10px;
+  padding: 5px;
+  background-color: #334140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
 .family {
   position: absolute;
   top: 20px;
@@ -141,16 +178,6 @@ const fixHeight = (e) => {
   color: yellowgreen;
   font-size: 20px;
   font-weight: normal;
-}
-
-.single-tweet {
-    p {
-        margin-top: 0;
-    }
-
-    a {
-         color: #000 !important;
-    }
 }
 
 .tweet-selects-block {
@@ -166,6 +193,10 @@ const fixHeight = (e) => {
         font-weight: 700;
         text-align: center;
     }
+}
+
+.critical {
+    color: red;
 }
 
 .tweet-textarea-block {
