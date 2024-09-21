@@ -32,7 +32,7 @@ export const useDataStore = defineStore('data', () => {
 
         if (variant === 'schedule') {
           data.scheduleObj = XL_row_object.filter((obj) => {
-            return obj.Position === 'Social Media Support Expert (secondary)'
+            return obj.Position === 'Social Media Support Expert (secondary)' || obj.Position === 'Social Media Support Expert'
           })
         } else if (variant === 'answers') {
           const repliedOnly = XL_row_object.filter((obj) => {
