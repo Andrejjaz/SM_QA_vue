@@ -1,16 +1,22 @@
 <script setup>
+import { reactive } from 'vue';
 import SingleShiftComponent from '@/components/SingleShiftComponent.vue';
 import { useDataStore } from '@/stores/data'
 import { storeToRefs } from 'pinia';
 const store = useDataStore();
 
-const { currentEmployee, currentAnswers } = storeToRefs(store);
+const { getCurrentEmployee, getCurrentAnswers } = storeToRefs(store);
+
+const state = reactive({
+  currentEmployee: getCurrentEmployee || {},
+  currentAnswers: getCurrentAnswers || [],
+});
 </script>
 
 <template>
   <div class="schedule">
-    <template v-if="currentEmployee?.value">
-        <SingleShiftComponent v-for="(oneShiftAnswers, index) in currentAnswers" :key="index" :shiftDate="oneShiftAnswers.date" :shiftAnswers="oneShiftAnswers.answers" />
+    <template v-if="state.currentEmployee">
+        <SingleShiftComponent v-for="(oneShiftAnswers, index) in state.currentAnswers" :key="index" :shiftDate="oneShiftAnswers.date" :shiftAnswers="oneShiftAnswers.answers" />
     </template>
   </div>
 </template>

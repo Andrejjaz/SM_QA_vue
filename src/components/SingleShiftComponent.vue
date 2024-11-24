@@ -27,7 +27,12 @@ const toggle = ref(true);
 
       <div class="answers-wrapper" :class="{ active: toggle }">
         <div class="tweet-wrapper">
-          <SingleTweetComponent v-for="(tweet, index) in props.shiftAnswers" :key="index" :tweet="tweet" :index="index" />
+          <SingleTweetComponent
+            v-for="(tweet, index) in props.shiftAnswers"
+            :key="index"
+            :tweet="tweet"
+            :index="index"
+          />
         </div>
       </div>
     </div>
@@ -63,18 +68,18 @@ const toggle = ref(true);
   transform: rotate(180deg);
 }
 
+.shift-toggler svg {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  fill: #fff;
+}
+
 .answers-wrapper {
   display: none;
 }
 
 .answers-wrapper.active {
   display: block;
-}
-
-.shift-toggler svg {
-  font-size: 30px;
-  width: 30px;
-  height: 30px;
-  fill: #fff;
 }
 </style>
